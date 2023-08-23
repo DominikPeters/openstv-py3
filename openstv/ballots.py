@@ -15,7 +15,7 @@
 __revision__ = "$Id: ballots.py 821 2010-11-19 23:36:17Z jeff.oneill $"
 
 import os
-from openstv.plugins import getLoaderPlugins, getLoaderPluginClass
+from plugins import getLoaderPlugins, getLoaderPluginClass
 
 ##################################################################
 
@@ -116,7 +116,7 @@ class Ballots(object):
     ballotList.names = self.names[:]
     ballotList.withdrawn = self.withdrawn[:]
     if copyBallots:
-      for i in xrange(self.numBallots):
+      for i in range(self.numBallots):
         ballot = self.getBallot(i)
         ballotID = self.getBallotID(i) if self.customBallotIDs else None
         ballotList.appendBallot(ballot, ballotID)
@@ -163,7 +163,7 @@ class Ballots(object):
       if isinstance(ranking, list):
         self.checkBallot(ranking)
       elif ranking > nc - 1:
-        raise RuntimeError, "Ballot has invalid data: %s" % str(ballot)
+        raise RuntimeError("Ballot has invalid data: %s" % str(ballot))
   
   def appendBallot(self, ballot, ballotID=None):
     "Append a ballot to this Ballots object."
@@ -221,7 +221,7 @@ class Ballots(object):
     
     sortedBallots = [(str(self.uniqueBallots[i]),
                       self.uniqueBallotCount[i])
-                     for i in xrange(self.numWeightedBallots)]
+                     for i in range(self.numWeightedBallots)]
     sortedBallots.sort()
     return sortedBallots
 
@@ -242,9 +242,9 @@ class Ballots(object):
     if self.customBallotIDs:
       ballotIDs = self.ballotIDsList[:]
     else:
-      ballotIDs = range(1, self.numBallots + 1)
+      ballotIDs = list(range(1, self.numBallots + 1))
       
-    return zip([self.uniqueBallots[i][:] for i in self.ballotOrder], ballotIDs)
+    return list(zip([self.uniqueBallots[i][:] for i in self.ballotOrder], ballotIDs))
 
   def setBallot(self, i, ballot):
 
@@ -331,7 +331,7 @@ class Ballots(object):
     # number "c" to a translated candidate number "c2" taking into account
     # candidates that have been removed from the ballots.  If a candidate is
     # withdrawn, c2c returns None.  
-    c2c = range(self.numCandidates)
+    c2c = list(range(self.numCandidates))
     if removeWithdrawn:
       n = 0
       for i in range(self.numCandidates):
@@ -342,7 +342,7 @@ class Ballots(object):
           c2c[i] -= n
 
     # Loop over ballots and perform requested cleaning
-    for i in xrange(self.numBallots):
+    for i in range(self.numBallots):
       ballot, ballotID = self.getBallotAndID(i)
       seenCandidates = set()
       cleanBallot = [] # This will be a cleaned version of ballot
@@ -401,12 +401,11 @@ class Ballots(object):
     if (ballotList.numSeats != self.numSeats or
         ballotList.names != self.names or
         ballotList.withdrawn != self.withdrawn):
-      raise RuntimeError, \
-            "Can't append ballots.  The numbers of seats and candidates, \n"\
+      raise RuntimeError("Can't append ballots.  The numbers of seats and candidates, \n"\
             "the names of the candidates, and the withdrawn candidates \n"\
-            "must be identical."
+            "must be identical.")
 
-    for i in xrange(ballotList.numBallots):
+    for i in range(ballotList.numBallots):
       ballot = ballotList.getBallot(i)
       ballotID = ballotList.getBallotID(i) if self.customBallotIDs else None
       self.appendBallot(ballot, ballotID)
@@ -433,7 +432,7 @@ class Ballots(object):
       extension = os.path.splitext(fName)[1][1:]
     loaderClass = getLoaderPluginClass(extension, exclude0)
     if loaderClass is None:
-      raise RuntimeError, "Do not know how to load files with extension %s." % (extension)
+      raise RuntimeError("Do not know how to load files with extension %s." % (extension))
 
     self.loader = loaderClass()
     self.loader.load(self, fName)
@@ -457,7 +456,8 @@ class Ballots(object):
       try:
         self.loader = loaderClass()
         self.loader.load(self, fName)
-      except RuntimeError, (msg,):
+      except RuntimeError as xxx_todo_changeme:
+        (msg,) = xxx_todo_changeme.args
         errorMsg += "\n" + msg.strip()
       else:
         break
@@ -480,14 +480,14 @@ class Ballots(object):
 
     if order == None:
       # Default is alphabetical order
-      order = range(self.numCandidates)
+      order = list(range(self.numCandidates))
       order.sort(key=lambda c: self.names[c])
 
     # Check to make sure that all candidates are included
     check = order[:]
     check.sort()
-    if check != range(self.numCandidates):
-      raise RuntimeError, "Must specify all the candidates when reordering."
+    if check != list(range(self.numCandidates)):
+      raise RuntimeError("Must specify all the candidates when reordering.")
 
     # Set up a translation list.
     # order gives the desired candidate order, e.g., [4 0 3 1 2]
@@ -505,7 +505,7 @@ class Ballots(object):
     self.uniqueBallotsLookup = {}
 
     # Loop over all the weighted ballots
-    for i in xrange(self.numWeightedBallots):
+    for i in range(self.numWeightedBallots):
       for j, c in enumerate(self.uniqueBallots[i]):
         self.uniqueBallots[i][j] = c2c[c]
       ballotString = str(list(self.uniqueBallots[i]))

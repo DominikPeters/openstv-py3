@@ -156,13 +156,13 @@ class ElectionMethod(object):
     
     # some basic minimum requirements
     if self.b.numCandidates < 2:
-      raise RuntimeError, """\
+      raise RuntimeError("""\
 Not enough candidates to run an election.
 Need at least %d candidates but have only %d.""" % (
-        max(2, self.numSeats+1), self.b.numCandidates)
+        max(2, self.numSeats+1), self.b.numCandidates))
 
     if self.numSeats < 1:
-      raise RuntimeError, "The number of seats must be at least 1."
+      raise RuntimeError("The number of seats must be at least 1.")
 
   def findTiedCand(self, candidateList, mostfewest, values):
     """Return a list of candidates tied for first or last.
@@ -412,7 +412,7 @@ class Iterative(ElectionMethod):
       return c, desc + desc2
 
     # When method is "forward" or "backward" we use other rounds
-    order = range(R)
+    order = list(range(R))
     if self.weakTieBreakMethod == "backward":
       order.reverse()
     
@@ -459,7 +459,7 @@ class Iterative(ElectionMethod):
   def newLosers(self, newLosersList):
     "Perform basic accounting when a new loser is found."
     
-    assert(newLosersList > 0)
+    assert(newLosersList)
     for c in newLosersList:
       self.continuing.remove(c)
       self.losers.add(c)
@@ -607,7 +607,7 @@ class STV(Iterative):
       text = self.newWinners(winners)
       # In some instances, updateWinners could be called more than once in a 
       # single round (e.g., N. Ireland STV when eliminating losers).
-      if self.roundInfo[self.R].has_key("winners"):
+      if "winners" in self.roundInfo[self.R]:
         self.roundInfo[self.R]["winners"] += text
       else:
         self.roundInfo[self.R]["winners"] = text
@@ -628,7 +628,7 @@ class STV(Iterative):
     elif self.roundInfo[self.R]["action"][0] == "eliminate":
       text = self.roundInfo[self.R]["eliminate"]
       
-    if self.roundInfo[self.R].has_key("winners"):
+    if "winners" in self.roundInfo[self.R]:
       text += self.roundInfo[self.R]["winners"]
       
     # Explain what will happen in the next round
@@ -876,7 +876,7 @@ class OrderDependentSTV(STV):
     "Count the first place votes with order dependent rules."
 
     # Allocate votes to candidates bases on the first choices.
-    for i in xrange(self.b.numBallots):
+    for i in range(self.b.numBallots):
       c = self.b.getTopChoiceFromBallot(i, self.continuing)
       if c is not None: 
         self.votes[c].append(i)
@@ -1289,7 +1289,7 @@ class RecursiveSTV(OrderIndependentSTV):
     elif self.roundInfo[self.R]["action"][0] == "eliminate":
       text = self.roundInfo[self.R]["eliminate"]
       
-    if self.roundInfo[self.R].has_key("winners"):
+    if "winners" in self.roundInfo[self.R]:
       text += self.roundInfo[self.R]["winners"]
       
     self.msg[self.R] = text
@@ -1311,7 +1311,7 @@ class RecursiveSTV(OrderIndependentSTV):
     for c in range(self.b.numCandidates):
       self.keepFactor[0][c] = self.p
 
-    for i in xrange(self.b.numWeightedBallots):
+    for i in range(self.b.numWeightedBallots):
       self.addBallotToTree(self.tree, i)
 
   def addBallotToTree(self, tree, ballotIndex, ballot=""):
@@ -1374,7 +1374,7 @@ class RecursiveSTV(OrderIndependentSTV):
       return
 
     # Create space if necessary.
-    if not tree.has_key(c):
+    if c not in tree:
       tree[c] = {}
       tree[c]["n"] = 0
       tree[c]["bi"] = []

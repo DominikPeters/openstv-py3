@@ -64,7 +64,7 @@ for x in pluginPackageNames:
 
 # Create MANIFEST.in
 f = open("MANIFEST.in", "w")
-print >> f, r"""
+print(r"""
 include CHANGELOG.txt
 include README.txt
 include openstv/Help.html
@@ -74,7 +74,7 @@ include openstv/Icons/blt.ico
 include openstv/Icons/pie.ico
 include openstv/Icons/blt.icns
 include openstv/Icons/pie.icns
-"""
+""", file=f)
 f.close()
 
 setup(name = name,
